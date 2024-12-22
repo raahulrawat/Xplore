@@ -1,0 +1,31 @@
+/* .gradient-custom {
+    background: #a1c4fd;
+  
+    background: -webkit-linear-gradient(to right, rgba(161,196,253,0.5), rgba(194,233,251,0.5));
+  
+    background: linear-gradient(to right, rgba(161,196,253,0.5), rgba(194,233,251,0.5))
+  } */
+/* 
+  .custom-background {
+       background: #30cfd0;
+  
+       background: -webkit-linear-gradient(to right, rgba(48,207,208,0.5), rgba(51,8,103,0.5));
+     
+       background: linear-gradient(to right, rgba(48,207,208,0.5), rgba(51,8,103,0.5))
+  } */
+  .icons-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 10px;
+  }
+  
+  .line {
+    flex: 1;
+    height: 8px;
+    background-color: steelblue;
+  }
