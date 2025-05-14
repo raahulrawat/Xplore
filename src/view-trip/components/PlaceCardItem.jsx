@@ -8,7 +8,7 @@ const PHOTO_REF_URL = 'https://via.placeholder.com/1000?text=Photo+Not+Available
 
 function PlaceCardItem({ place }) {
     const [photoUrl, setPhotoUrl] = useState(PHOTO_REF_URL);
-
+    console.log("check data:", place)
     useEffect(() => {
         const fetchPlacePhoto = async () => {
             if (!place || !place.placeName) return;

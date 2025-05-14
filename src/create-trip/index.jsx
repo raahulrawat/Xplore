@@ -3,16 +3,14 @@ import axios from 'axios';
 import { SelectBudgetOptions, selectTravelList } from '../constants/options';
 import { toast } from 'react-toastify';
 import { chatSession } from '../service/AIModal';
-import { Dialog, DialogContent, DialogHeader,DialogDescription} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from '@react-oauth/google';
 import { setDoc, doc } from 'firebase/firestore';
 import { db } from "@/service/firebaseConfig";
 import travelPlannerLogo from '@/assets/travelplanner.png';
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import {useNavigate} from 'react-router-dom';
-// import placeImage from './place.png';
-
+import { useNavigate } from 'react-router-dom';
 
 const AI_PROMPT = `Plan a trip to {location} for {totalDays} days. I will be traveling with {traveler} and my budget is {budget}.`;
 
@@ -24,8 +22,8 @@ function CreateTrip() {
   const [formData, setFormData] = useState({});
   const [selectedBudget, setSelectedBudget] = useState('');
   const [selectedTraveler, setSelectedTraveler] = useState('');
-  const [openDialog,setOpenDialog] = useState();
-  const [loading,setLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Helper to update form data
@@ -48,7 +46,7 @@ function CreateTrip() {
   // Function to generate trip plan
   const onGenerateTrip = async () => {
     const user = localStorage.getItem('user');
-    if(!user){
+    if (!user) {
       setOpenDialog(true);
       return;
     }
@@ -57,10 +55,11 @@ function CreateTrip() {
       toast("Please fill all the details");
       return;
     }
+
     setLoading(true);
-    console.log("location", formData?.location?.label);
+
     const FINAL_PROMPT = AI_PROMPT
-      .replace('{location}', formData?.location?.label || 'Manali')
+      .replace('{location}', formData?.location?.display_name || 'Manali')
       .replace('{totalDays}', formData?.days || '')
       .replace('{traveler}', formData?.traveler || '')
       .replace('{budget}', formData?.budget || '');
@@ -68,15 +67,20 @@ function CreateTrip() {
     console.log("Final prompt:", FINAL_PROMPT);
 
     try {
-      const result = await chatSession.sendMessage(FINAL_PROMPT);
-      setLoading(false);
-      const responseText = await result?.response?.text();
+      const res = await axios.post('http://localhost:3001/itinerary', {
+        prompt: FINAL_PROMPT,
+      });
+
+      const responseText = res.data;
       console.log("AI Response:", responseText);
-      // Save AI-generated trip data
+      console.log(res.data)
+
       await saveAITrip(responseText);
     } catch (error) {
       console.error('Error generating trip:', error);
       toast("An error occurred while generating the trip");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,12 +92,12 @@ function CreateTrip() {
     try {
       await setDoc(doc(db, "AITrips", docId), {
         userSelection: formData,
-        tripData: JSON.parse(TripData),
-        userEmail:user?.email,
-        id:docId
+        tripData: TripData,
+        userEmail: user?.email,
+        id: docId
       });
       setLoading(false);
-      navigate('/view-trip/'+docId)
+      navigate('/view-trip/' + docId);
       toast("Trip saved successfully!");
     } catch (error) {
       console.error('Error saving trip:', error);
@@ -111,9 +115,9 @@ function CreateTrip() {
     }).then((resp) => {
       console.log(resp);
       localStorage.setItem('user', JSON.stringify(resp.data));
-      setOpenDialog(false); 
+      setOpenDialog(false);
       onGenerateTrip();
-    })
+    });
   };
 
   // Handle location input change and suggestions
@@ -173,6 +177,8 @@ function CreateTrip() {
       <p className="mt-3 text-gray-500 text-xl">
         Just provide basic information, and our trip planner will generate a customized itinerary based on your preferences.
       </p>
+
+      {/* Destination Input */}
       <div className="mt-20 flex flex-col gap-9">
         <div className="w-full md:w-1/2 lg:w-1/2">
           <h2 className="text-xl my-3 font-medium">What is your destination of choice?</h2>
@@ -197,6 +203,8 @@ function CreateTrip() {
             </ul>
           )}
         </div>
+
+        {/* Days Input */}
         <div className="w-full md:w-1/2 lg:w-1/2">
           <h2 className="text-xl my-3 font-medium">How many days are you planning your trip?</h2>
           <input
@@ -208,6 +216,8 @@ function CreateTrip() {
           />
         </div>
       </div>
+
+      {/* Budget Options */}
       <div>
         <h2 className="text-xl my-3 font-medium">What is Your Budget?</h2>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 justify-center">
@@ -226,6 +236,8 @@ function CreateTrip() {
           ))}
         </div>
       </div>
+
+      {/* Traveler Options */}
       <div>
         <h2 className="text-xl my-3 font-medium">Who do you plan on traveling with on your next adventure?</h2>
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 justify-center">
@@ -244,37 +256,43 @@ function CreateTrip() {
           ))}
         </div>
       </div>
-      <div className='my-10 justify-end flex'>
-        <button disabled={loading}
-        className="bg-black text-white rounded px-4 py-2 mt-10 transition-all duration-200 hover:bg-blue-500" onClick={onGenerateTrip}>
-        {
-              loading?
-              <AiOutlineLoading3Quarters className='h-7 w-7 animate-spin'/>: 'Generate Trip'
-        }
-          </button>
-      </div>
-      {/* Dialog for Google login */}
-      <Dialog open={openDialog}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogDescription>
-          <img
-              src={travelPlannerLogo}
-              className="w-1/4 h-auto mx-auto rounded-lg mb-5"
-              alt="logo"/>
-          <h2 className='font-bold text-lg mt-7'>Sign In With Google</h2>
-          <p>Sign in to the App with Google authentication securely.</p>
-          <button disabled={loading}
-          onClick={login}
-          className='w-full mt-5 flex gap-4 items-center justify-center p-3 bg-green-600 text-white rounded hover:bg-green-700 transition duration-300'>
-              <FcGoogle className='h-7 w-7'/>
-              Sign In With Google
-            </button>
-          </DialogDescription>
-        </DialogHeader>
-      </DialogContent>
 
-      </Dialog> 
+      {/* Generate Trip Button */}
+      <div className='my-10 justify-end flex'>
+        <button
+          disabled={loading}
+          className="bg-black text-white rounded px-4 py-2 mt-10 transition-all duration-200 hover:bg-blue-500"
+          onClick={onGenerateTrip}
+        >
+          {loading ? <AiOutlineLoading3Quarters className='h-7 w-7 animate-spin' /> : 'Generate Trip'}
+        </button>
+      </div>
+
+      {/* Dialog for Google login */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogDescription>
+              <img
+                src={travelPlannerLogo}
+                className="w-1/4 h-auto mx-auto rounded-lg mb-5"
+                alt="logo"
+              />
+              <h2 className='font-bold text-lg mt-7'>Sign In With Google</h2>
+              <p>Sign in to the App with Google authentication securely.</p>
+              <button
+                disabled={loading}
+                onClick={login}
+                className='w-full mt-5 flex gap-4 items-center justify-center p-3 bg-green-600 text-white rounded hover:bg-green-700 transition duration-300'
+              >
+                <FcGoogle className='h-7 w-7' />
+                Sign In With Google
+              </button>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

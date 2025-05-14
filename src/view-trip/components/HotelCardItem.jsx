@@ -5,7 +5,7 @@ import placeImage from '../place.png'; // Ensure this path is correct
 
 const UNSPLASH_API_URL = 'https://api.unsplash.com/search/photos';
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY; // Correctly access the environment variable
-const LOCATIONIQ_API_KEY = 'pk.c51ba700c7aa3288f19b95fbaddbaeff'; // Replace with your LocationIQ API key
+const LOCATIONIQ_API_KEY = 'pk.d4dddd18097e7b0abb6d2dfb4706e71f'; // Replace with your LocationIQ API key
 const PHOTO_REF_URL = 'https://via.placeholder.com/1000?text=Photo+Not+Available';
 
 function HotelCardItem({ hotel }) {

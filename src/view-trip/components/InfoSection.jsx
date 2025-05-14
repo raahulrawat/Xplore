@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { IoIosSend } from "react-icons/io";
-import { IoLocationSharp } from "react-icons/io5"; // Import location icon
-import fetchPhoto from '../../service/GlobalApi'; // Import the Unsplash service
+import { IoLocationSharp } from "react-icons/io5";
+import fetchPhoto from '../../service/GlobalApi';
 import placeImage from '../place.png';
 
-// Define a placeholder for photos as fallback
+// Placeholder for photos as fallback
 const PHOTO_REF_URL = 'https://via.placeholder.com/1000?text=Photo+Not+Available';
 
 function InfoSection({ trip }) {
   const [photoUrl, setPhotoUrl] = useState(PHOTO_REF_URL);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchPlacePhoto = async () => {
@@ -17,12 +18,11 @@ function InfoSection({ trip }) {
       const query = trip.userSelection.location?.display_name;
 
       try {
-        // Fetch photo from Unsplash based on the location query
         const photo = await fetchPhoto(query);
         setPhotoUrl(photo);
       } catch (error) {
         console.error('Error fetching place photo:', error.message);
-        setPhotoUrl(PHOTO_REF_URL); // Use the placeholder in case of an error
+        setPhotoUrl(PHOTO_REF_URL);
       }
     };
 
@@ -30,22 +30,31 @@ function InfoSection({ trip }) {
   }, [trip]);
 
   if (!trip || !trip.userSelection) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-[600px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col justify-start items-center h-screen">
+    <div className="flex flex-col justify-start items-center h-[600px]">
       <div className="relative w-full">
         <img 
-          src={photoUrl?photoUrl:placeImage}
-          alt="Trip Placeholder" 
+          src={photoUrl || placeImage}
+          alt={`Photo of ${trip.userSelection.location?.display_name || 'trip location'}`} 
           className="h-[470px] w-full object-cover rounded-xl mb-4"
+          onError={(e) => { e.target.onerror = null; e.target.src = placeImage }}
         />
-        <button className="absolute bottom-[-55px] right-8 p-2 px-4 bg-black text-white rounded-full hover:bg-gray-800 flex items-center gap-2">
+        <button 
+          className="absolute bottom-[-55px] right-8 p-2 px-4 bg-black text-white rounded-full hover:bg-gray-800 flex items-center gap-2"
+          onClick={() => setIsModalOpen(true)}
+        >
           <IoIosSend />
-          Send
+          More
         </button>
       </div>
+
       <div className="w-full flex flex-col items-start px-4 mt-4">
         <div className="flex items-center gap-2 mb-4">
           <IoLocationSharp className="text-xl text-gray-600" />
@@ -55,7 +64,7 @@ function InfoSection({ trip }) {
         </div>
         <div className='flex gap-5 justify-start'>
           <h2 className="p-2 px-4 bg-gray-200 rounded-full text-gray-600 text-xs md:text-md">
-            📆 {trip.userSelection.days || 'Days not specified'} Day
+            📆 {trip.userSelection.days || 'Days not specified'} {trip.userSelection.days === 1 ? 'Day' : 'Days'}
           </h2>
           <h2 className="p-2 px-4 bg-gray-200 rounded-full text-gray-600 text-xs md:text-md">
             💰 {trip.userSelection.budget ? `${trip.userSelection.budget} Budget` : 'Budget not specified'}
@@ -65,6 +74,30 @@ function InfoSection({ trip }) {
           </h2>
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-2xl w-96 flex flex-col gap-4">
+            <h2 className="text-2xl font-bold text-center mb-4">What would you like to do?</h2>
+            
+            <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700">
+              Connect with Travel AI Agent
+            </button>
+
+            <button className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600">
+              Get Estimate
+            </button>
+
+            <button 
+              className="text-gray-500 text-sm mt-2 hover:text-gray-800"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

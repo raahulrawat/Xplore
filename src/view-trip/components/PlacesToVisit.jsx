@@ -2,6 +2,8 @@
 import PlaceCardItem from "./PlaceCardItem";
 
 function PlacesToVisit({ trip }) {
+
+
   return (
     <div>
       <h2 className="font-bold text-lg mt-9">Places To Visit</h2>
@@ -13,7 +15,7 @@ function PlacesToVisit({ trip }) {
               {item.plan.map((place, placeIndex) => (
                 <div key={placeIndex} className="">
                   <h2 className="font-medium text-sm text-orange-600">{place.timeTravel}</h2>
-                  <h2 className="font-medium text-lg">{place.bestTimeVisit}</h2>
+                  <h2 className="font-medium text-lg">{item.bestTimeVisit}</h2>
                   <PlaceCardItem place={place} />
                 </div>
               ))}
