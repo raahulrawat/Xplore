@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ViewTrip from './view-trip/[tripId]/index.jsx';
 import MyTrips from './my-trips/index.jsx';
+import AIAgent from './aiagent/index.jsx'
 
 
 const router = createBrowserRouter([
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: '/my-trips',
     element:<MyTrips/>
+  },
+    {
+    path: '/aiagent',
+    element:<AIAgent/>
   },
 
 ])

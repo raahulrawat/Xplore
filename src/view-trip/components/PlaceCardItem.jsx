@@ -33,9 +33,9 @@ function PlaceCardItem({ place }) {
                 <div>
                     <h2 className='font-bold text-lg'>{place.placeName}</h2>
                     <p className='text-sm text-gray-400'>{place.placeDetails}</p>
-                    {/* <h2 className='mt-2'>🕙 {place.timeTravel}</h2> */}
+                    <h2 className='mt-2'>🕙 {place.timeTravel}</h2>
                     <h2 className='mt-4'>🎟️ {place.ticketPricing}</h2>
-                    <button size="sm"><FaMapLocationDot /></button>
+                    <button size="mt-2"><FaMapLocationDot /> </button>
                 </div>
             </div>
         </Link>

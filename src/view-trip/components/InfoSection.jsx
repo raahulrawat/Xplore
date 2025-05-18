@@ -3,13 +3,21 @@ import { IoIosSend } from "react-icons/io";
 import { IoLocationSharp } from "react-icons/io5";
 import fetchPhoto from '../../service/GlobalApi';
 import placeImage from '../place.png';
+import axios from 'axios'; // ✅ Import Axios to send email
 
-// Placeholder for photos as fallback
 const PHOTO_REF_URL = 'https://via.placeholder.com/1000?text=Photo+Not+Available';
 
 function InfoSection({ trip }) {
   const [photoUrl, setPhotoUrl] = useState(PHOTO_REF_URL);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [user, setUser] = useState(null); // ✅ State to store user info
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser)); // ✅ Parse and store user
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPlacePhoto = async () => {
@@ -28,6 +36,27 @@ function InfoSection({ trip }) {
 
     fetchPlacePhoto();
   }, [trip]);
+
+  const handleSendEstimate = async () => {
+    if (!user) {
+      alert("User not signed in. Please sign in to get an estimate.");
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3001/generate_lead', {
+        email: user.email,
+        name: user.name,
+        itinerary_details: JSON.stringify(trip.userSelection),
+      });
+
+      alert("Estimate request sent successfully!");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error sending estimate email:", error.message);
+      alert("Failed to send estimate. Please try again.");
+    }
+  };
 
   if (!trip || !trip.userSelection) {
     return (
@@ -80,12 +109,15 @@ function InfoSection({ trip }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-2xl w-96 flex flex-col gap-4">
             <h2 className="text-2xl font-bold text-center mb-4">What would you like to do?</h2>
-            
+            <a href="/aiagent">
             <button className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700">
               Connect with Travel AI Agent
-            </button>
+            </button> </a>
 
-            <button className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600">
+            <button 
+              className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600"
+              onClick={handleSendEstimate}
+            >
               Get Estimate
             </button>
 
