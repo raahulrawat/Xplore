@@ -67,7 +67,7 @@ function CreateTrip() {
     console.log("Final prompt:", FINAL_PROMPT);
 
     try {
-      const res = await axios.post('http://localhost:3001/itinerary', {
+      const res = await axios.post('https://1b61-182-156-197-122.ngrok-free.app/itinerary', {
         prompt: FINAL_PROMPT,
       });
 
