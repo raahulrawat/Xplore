@@ -11,7 +11,7 @@ function Hotels({ trip }) {
   
     const fetchData = async () => {
       try {
-        const res = await axios.post('https://1b61-182-156-197-122.ngrok-free.app/get_hotels', {
+        const res = await axios.post('http://localhost:3001/get_hotels', {
           location: location,
           days: 1
         });
