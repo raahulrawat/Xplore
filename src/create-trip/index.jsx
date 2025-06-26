@@ -351,7 +351,7 @@ function CreateTrip() {
       .replace('{budget}', budget);
 
     try {
-      const res = await axios.post('http://localhost:3001/itinerary', { prompt: FINAL_PROMPT });
+      const res = await axios.post('https://1b61-182-156-197-122.ngrok-free.app/itinerary', { prompt: FINAL_PROMPT });
       await saveAITrip(res.data);
     } catch (error) {
       console.error(error);
